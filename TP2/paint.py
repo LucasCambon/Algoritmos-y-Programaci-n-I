@@ -94,7 +94,6 @@ def main():
             print("Se cambio el color")
         if ev.type == gamelib.EventType.ButtonPress and ev.mouse_button == 1:
             x,y = ev.x, ev.y
-            print(f'se ha movido el puntero del mouse: {ev.x} {ev.y}')
             color = actualizar_color(paleta, color, x, y)
             print(color)
             paint = actualizar_paint(paint, color, x, y)
