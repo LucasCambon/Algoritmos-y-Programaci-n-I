@@ -34,7 +34,7 @@ def actualizar_paint(paint, color, x, y):
         paint[pos_y][pos_x] = color
     return paint
 
-def paint_mostrar(paint):
+def paint_mostrar(paint, color):
     pos_x = 0
     pos_y = 0
     color_x = 0
@@ -42,7 +42,7 @@ def paint_mostrar(paint):
     '''dibuja la interfaz de la aplicación en la ventana'''
     gamelib.draw_begin()
     gamelib.draw_rectangle(0,0,200,200, fill="#FFFFFF")
-    gamelib.draw_rectangle(0,200,200,250, fill="#808080")
+    gamelib.draw_rectangle(0,200,200,250, fill=COLORES_BASICOS.get(color))
     for i in range(len(paint)):
         gamelib.draw_line(0, pos_y, 200, pos_y, fill="#000000")
         pos_y += 10
@@ -81,7 +81,7 @@ def main():
     paint = paint_nuevo(PIXELES_ANCHO, PIXELES_ALTO)
     color = (0,0,0)
     while gamelib.is_alive():
-        paint_mostrar(paint)
+        paint_mostrar(paint, color)
         paleta = mostrar_paleta()
         
         ev = gamelib.wait()
