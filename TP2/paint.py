@@ -23,18 +23,17 @@ def paint_nuevo(ancho, alto):
     for i in range(PIXELES_ANCHO):
         lienzo.append([])
         for j in range(PIXELES_ALTO):
-            lienzo[i].append((255,255,255))
+            lienzo[i].append((245,255,255))
     return lienzo
 
 def actualizar_paint(paint, color, x, y):
-    print(color)
     if 0 < x < 200 and 0 < y < 200:
         pos_x = x // 10
         pos_y = y // 10
         paint[pos_y][pos_x] = color
     return paint
 
-def paint_mostrar(paint, color):
+def paint_mostrar(paint, color, nuevos_colores):
     pos_x = 0
     pos_y = 0
     color_x = 0
@@ -42,14 +41,20 @@ def paint_mostrar(paint, color):
     '''dibuja la interfaz de la aplicación en la ventana'''
     gamelib.draw_begin()
     gamelib.draw_rectangle(0,0,200,200, fill="#FFFFFF")
-    gamelib.draw_rectangle(0,200,200,250, fill=COLORES_BASICOS.get(color))
+    if color in COLORES_BASICOS:
+        gamelib.draw_rectangle(0,200,200,250, fill=COLORES_BASICOS.get(color))
+    else:
+        gamelib.draw_rectangle(0,200,200,250, fill=nuevos_colores.get(color))
     for i in range(len(paint)):
         gamelib.draw_line(0, pos_y, 200, pos_y, fill="#000000")
         pos_y += 10
         gamelib.draw_line(pos_x, 0, pos_x, 200, fill="#000000")
         pos_x += 10
         for j in range(len(paint[i])):
-            gamelib.draw_rectangle(color_x,color_y,color_x+10,color_y+10, fill=COLORES_BASICOS.get(paint[i][j]))
+            if paint[i][j] in COLORES_BASICOS:
+                gamelib.draw_rectangle(color_x,color_y,color_x+10,color_y+10, fill=COLORES_BASICOS.get(paint[i][j]))
+            else:
+                gamelib.draw_rectangle(color_x,color_y,color_x+10,color_y+10, fill=nuevos_colores.get(paint[i][j]))
             color_x+=10
         color_x = 0
         color_y += 10
@@ -69,19 +74,28 @@ def actualizar_color(paleta, color, x, y):
     if 10 < x < 190 and 205 < y < 220:
         pos_x = (x - 10) // 15
         color_nuevo = paleta[pos_x]
-        print(color_nuevo)
     else:
         return color
     return color_nuevo
 
+def agregar_color(nuevos_colores, color, x, y):
+    
+    if 10 < x < 190 and 225 < y < 240:
+        hex_color = gamelib.input("Ingrese el color: ")
+        color = (int(hex_color[1:3], 16),int(hex_color[3:5], 16),int(hex_color[5:7], 16))
+        if color in COLORES_BASICOS:
+            return nuevos_colores, color
+        nuevos_colores[color] = hex_color
+    return nuevos_colores, color
+
 def main():
     gamelib.title("AlgoPaint")
     gamelib.resize(200, 250)
-    
+    nuevos_colores = {}
     paint = paint_nuevo(PIXELES_ANCHO, PIXELES_ALTO)
     color = (0,0,0)
     while gamelib.is_alive():
-        paint_mostrar(paint, color)
+        paint_mostrar(paint, color, nuevos_colores)
         paleta = mostrar_paleta()
         
         ev = gamelib.wait()
@@ -90,12 +104,12 @@ def main():
         
 
 
-        if ev.type == gamelib.EventType.KeyPress and ev.key == "c":
-            print("Se cambio el color")
+        """if ev.type == gamelib.EventType.KeyPress and ev.key == "c":
+            print("Se cambio el color")"""
         if ev.type == gamelib.EventType.ButtonPress and ev.mouse_button == 1:
             x,y = ev.x, ev.y
             color = actualizar_color(paleta, color, x, y)
-            print(color)
+            nuevos_colores, color = agregar_color(nuevos_colores, color, x, y)
             paint = actualizar_paint(paint, color, x, y)
         """elif ev.type == gamelib.EventType.ButtonRelease and ev.mouse_button == 1:
             print(f'se ha soltado el botón del mouse: {ev.x} {ev.y}')
