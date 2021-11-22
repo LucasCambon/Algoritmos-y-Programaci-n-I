@@ -50,6 +50,7 @@ INICIO_BOTONES_Y = 205
 FIN_BOTONES_Y = 240
 ESPACIO_ENTRE_BOTONES_X = 3
 ESPACIO_ENTRE_BOTONES_Y = 5
+ESPACIO_ENTRE_BOTON_AC_X = 10
 
 ### TEXTO
 POS_X_TEXTO = 26
@@ -116,7 +117,7 @@ def mostrar_botones():
     for i in range(len(COLORES_BOTON_AC)):
         gamelib.draw_rectangle(pos_x, INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y, pos_x + ESPACIO_ENTRE_BOTONES_X, FIN_BOTONES_Y, fill=COLORES_BOTON_AC[i])
         pos_x += ESPACIO_ENTRE_BOTONES_X
-    pos_x += 10
+    pos_x += ESPACIO_ENTRE_BOTON_AC_X
     for j in range(len(NOMBRES_BOTONES)):
         gamelib.draw_rectangle(pos_x + ESPACIO_ENTRE_BOTONES_X, INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y, pos_x + ANCHO_BOTONES, FIN_BOTONES_Y, fill="#FFFFFF")
         gamelib.draw_text(NOMBRES_BOTONES[j], pos_x + POS_X_TEXTO , FIN_BOTONES_Y-INICIO_BOTONES_Y + POS_Y_TEXTO , size=10, fill="#000000")
@@ -170,7 +171,9 @@ def guardar_png(paint, paleta, x, y):
                 break
 
 def guardar_ppm(paint, x, y):
-    if FIN_BOTONES_X - (ANCHO_BOTONES * 3) - (ESPACIO_ENTRE_BOTONES_X * 2) < x < FIN_BOTONES_X and INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y < y < FIN_BOTONES_Y:
+    inicio_boton = INICIO_BOTONES_X + ANCHO_BOTON_AC + ESPACIO_ENTRE_BOTON_AC_X + ESPACIO_ENTRE_BOTONES_X
+    fin_boton = inicio_boton + ANCHO_BOTONES - ESPACIO_ENTRE_BOTONES_X
+    if inicio_boton < x < fin_boton and INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y < y < FIN_BOTONES_Y:
         while True:
             ruta = gamelib.input("Ingrese la ruta y el nombre del archivo: ") ###En caso de colocar solamente el nombre se guardará en la ruta del programa
             if ruta != "" and ruta != None:
