@@ -140,11 +140,11 @@ def agregar_color(nuevos_colores, paleta, color, x, y):
         if len(hex_color) != 7:
             gamelib.say("Color inválido!")
             return nuevos_colores, color, paleta
-        if color in COLORES_BASICOS:
-            return nuevos_colores, color, paleta
         color = (int(hex_color[1:3], 16),int(hex_color[3:5], 16),int(hex_color[5:7], 16))
         paleta.append(color)
         nuevos_colores[color] = hex_color
+        if color in COLORES_BASICOS:
+            return nuevos_colores, color, paleta
     return nuevos_colores, color, paleta
 
 def guardar_png(paint, paleta, x, y):
@@ -202,8 +202,6 @@ def guardar_ppm(paint, x, y):
 def cargar_ppm(paint, paleta, nuevos_colores, x, y):
     inicio_boton_x = INICIO_BOTONES_X + ANCHO_BOTON_AC + ESPACIO_ENTRE_BOTON_AC_X + ESPACIO_ENTRE_BOTONES_X + ANCHO_BOTONES
     if inicio_boton_x < x < inicio_boton_x + ANCHO_BOTONES - ESPACIO_ENTRE_BOTONES_X and INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y < y < FIN_BOTONES_Y:
-        paint.clear()
-        paleta.clear()
         cont_lineas = 0
         while True:
             ruta = gamelib.input("Ingrese la ruta y el nombre del archivo: ") ###En caso de colocar solamente el nombre se cargará el archivo dentro de la ruta del programa
@@ -211,16 +209,21 @@ def cargar_ppm(paint, paleta, nuevos_colores, x, y):
                 try:
                     ruta += ".ppm"
                     with open(ruta) as archivo:
+                        paint.clear()
+                        paleta.clear()
                         archivo_sin_encabezado = archivo.readlines()[3:]
                         for linea in archivo_sin_encabezado:
                             paint.append([])
                             lista_palabras = linea.rsplit()
                             for i in range(len(lista_palabras)):
-                                if 0 <= i <= 59:
+                                if 0 <= i <= len(lista_palabras):
                                     if i % 3 == 2:
                                         color = (int(lista_palabras[i-2]), int(lista_palabras[i-1]), int(lista_palabras[i]))
-                                        print(color)
                                         paint[cont_lineas].append(color)
+                                        if color not in COLORES_BASICOS:
+                                            color_nuevo = "#" + f"{color[0]:02x}" + f"{color[1]:02x}" + f"{color[2]:02x}"
+                                            paleta.append(color)
+                                            nuevos_colores[color] = color_nuevo
                                         if color not in paleta:
                                             paleta.append(color)
                             cont_lineas += 1                            
@@ -250,10 +253,6 @@ def main():
         if not ev:
             break
         
-
-
-        """if ev.type == gamelib.EventType.KeyPress and ev.key == "c":
-            print("Se cambio el color")"""
         if ev.type == gamelib.EventType.ButtonPress and ev.mouse_button == 1:
             x,y = ev.x, ev.y
             color = actualizar_color(paleta, color, x, y)
@@ -262,9 +261,5 @@ def main():
             guardar_png(paint, paleta, x, y)
             guardar_ppm(paint, x, y)
             paint, paleta, nuevos_colores = cargar_ppm(paint, paleta, nuevos_colores, x, y)
-        """elif ev.type == gamelib.EventType.ButtonRelease and ev.mouse_button == 1:
-            print(f'se ha soltado el botón del mouse: {ev.x} {ev.y}')
-        elif ev.type == gamelib.EventType.KeyPress:
-            print(f'se ha presionado la tecla: {ev.key}')"""
 
 gamelib.init(main)
