@@ -171,9 +171,8 @@ def guardar_png(paint, paleta, x, y):
                 break
 
 def guardar_ppm(paint, x, y):
-    inicio_boton = INICIO_BOTONES_X + ANCHO_BOTON_AC + ESPACIO_ENTRE_BOTON_AC_X + ESPACIO_ENTRE_BOTONES_X
-    fin_boton = inicio_boton + ANCHO_BOTONES - ESPACIO_ENTRE_BOTONES_X
-    if inicio_boton < x < fin_boton and INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y < y < FIN_BOTONES_Y:
+    inicio_boton_x = INICIO_BOTONES_X + ANCHO_BOTON_AC + ESPACIO_ENTRE_BOTON_AC_X + ESPACIO_ENTRE_BOTONES_X
+    if inicio_boton_x < x < inicio_boton_x + ANCHO_BOTONES - ESPACIO_ENTRE_BOTONES_X and INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y < y < FIN_BOTONES_Y:
         while True:
             ruta = gamelib.input("Ingrese la ruta y el nombre del archivo: ") ###En caso de colocar solamente el nombre se guardará en la ruta del programa
             if ruta != "" and ruta != None:
@@ -200,8 +199,39 @@ def guardar_ppm(paint, x, y):
 
 
 
-def cargar_ppm():
-    pass
+def cargar_ppm(paint, paleta, nuevos_colores, x, y):
+    inicio_boton_x = INICIO_BOTONES_X + ANCHO_BOTON_AC + ESPACIO_ENTRE_BOTON_AC_X + ESPACIO_ENTRE_BOTONES_X + ANCHO_BOTONES
+    if inicio_boton_x < x < inicio_boton_x + ANCHO_BOTONES - ESPACIO_ENTRE_BOTONES_X and INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y < y < FIN_BOTONES_Y:
+        paint.clear()
+        paleta.clear()
+        cont_lineas = 0
+        while True:
+            ruta = gamelib.input("Ingrese la ruta y el nombre del archivo: ") ###En caso de colocar solamente el nombre se cargará el archivo dentro de la ruta del programa
+            if ruta != "" and ruta != None:
+                try:
+                    ruta += ".ppm"
+                    with open(ruta) as archivo:
+                        archivo_sin_encabezado = archivo.readlines()[3:]
+                        for linea in archivo_sin_encabezado:
+                            paint.append([])
+                            lista_palabras = linea.rsplit()
+                            for i in range(len(lista_palabras)):
+                                if 0 <= i <= 59:
+                                    if i % 3 == 2:
+                                        color = (int(lista_palabras[i-2]), int(lista_palabras[i-1]), int(lista_palabras[i]))
+                                        print(color)
+                                        paint[cont_lineas].append(color)
+                                        if color not in paleta:
+                                            paleta.append(color)
+                            cont_lineas += 1                            
+                except FileNotFoundError:
+                    gamelib.say("No se encuentra el archivo en la ruta indicada!")
+                    continue
+            if ruta == "":
+                gamelib.say("Nombre inválido!")
+            else:
+                break
+    return paint, paleta, nuevos_colores
         
     
 
@@ -231,6 +261,7 @@ def main():
             paint = actualizar_paint(paint, color, x, y)
             guardar_png(paint, paleta, x, y)
             guardar_ppm(paint, x, y)
+            paint, paleta, nuevos_colores = cargar_ppm(paint, paleta, nuevos_colores, x, y)
         """elif ev.type == gamelib.EventType.ButtonRelease and ev.mouse_button == 1:
             print(f'se ha soltado el botón del mouse: {ev.x} {ev.y}')
         elif ev.type == gamelib.EventType.KeyPress:
