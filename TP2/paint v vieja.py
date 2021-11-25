@@ -69,27 +69,29 @@ def paint_nuevo():
     return lienzo
 
 def actualizar_paint(paint, color, x, y):
-    
     if INICIO_LIENZO_X < x < FIN_LIENZO_X and INICIO_LIENZO_Y < y < FIN_LIENZO_Y:
-        try:
-            pos_x = x // 10
-            pos_y = y // 10
-            paint[pos_y][pos_x] = color
-        except IndexError:
-            gamelib.say("No se puede pintar fuera del lienzo!")
+        pos_x = x // 10
+        pos_y = y // 10
+        paint[pos_y][pos_x] = color
     return paint
 
 def paint_mostrar(paint, color, nuevos_colores):
+    pos_x = 0
+    pos_y = 0
     color_x = 0
     color_y = 0
     '''dibuja la interfaz de la aplicación en la ventana'''
     gamelib.draw_begin()
-    gamelib.draw_rectangle(INICIO_LIENZO_X, INICIO_LIENZO_Y, (len(paint)*10), (len(paint[len(paint)-1])*10), fill="#FFFFFF")
+    gamelib.draw_rectangle(INICIO_LIENZO_X, INICIO_LIENZO_Y, FIN_LIENZO_X, FIN_LIENZO_Y, fill="#FFFFFF")
     if color in COLORES_BASICOS:
-        gamelib.draw_rectangle(INICIO_INTERFAZ_BOTONES_X, (len(paint[len(paint)-1])*10), (len(paint)*10), FIN_INTERFAZ_BOTONES_Y, fill=COLORES_BASICOS.get(color))
+        gamelib.draw_rectangle(INICIO_INTERFAZ_BOTONES_X, INICIO_INTERFAZ_BOTONES_Y, FIN_INTERFAZ_BOTONES_X, FIN_INTERFAZ_BOTONES_Y, fill=COLORES_BASICOS.get(color))
     else:
-        gamelib.draw_rectangle(INICIO_INTERFAZ_BOTONES_X, (len(paint[len(paint)-1])*10), (len(paint)*10) ,FIN_INTERFAZ_BOTONES_Y, fill=nuevos_colores.get(color))
+        gamelib.draw_rectangle(INICIO_INTERFAZ_BOTONES_X, INICIO_INTERFAZ_BOTONES_Y, FIN_INTERFAZ_BOTONES_X ,FIN_INTERFAZ_BOTONES_Y, fill=nuevos_colores.get(color))
     for i in range(len(paint)):
+        gamelib.draw_line(INICIO_LIENZO_X, pos_y, FIN_LIENZO_X, pos_y, fill="#000000")
+        pos_y += TAMANIO_CELDAS
+        gamelib.draw_line(pos_x, INICIO_LIENZO_Y, pos_x, FIN_LIENZO_Y, fill="#000000")
+        pos_x += TAMANIO_CELDAS
         for j in range(len(paint[i])):
             if paint[i][j] in COLORES_BASICOS:
                 gamelib.draw_rectangle(color_x, color_y, color_x+TAMANIO_CELDAS, color_y+TAMANIO_CELDAS, fill=COLORES_BASICOS.get(paint[i][j]))
