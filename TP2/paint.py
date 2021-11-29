@@ -192,7 +192,7 @@ def paint_mostrar(paint):
     '''dibuja la interfaz de la aplicación en la ventana'''
     gamelib.draw_rectangle(INICIO_LIENZO_X, INICIO_LIENZO_Y, (len(paint.lienzo)*10), (len(paint.lienzo[len(paint.lienzo)-1])*10), fill="#FFFFFF")
     if paint.color in paint.nuevos_colores:
-        gamelib.draw_rectangle(INICIO_INTERFAZ_BOTONES_X, (len(paint.lienzo[len(paint.lienzo)-1])*10), (len(paint.lienzo)*10) ,FIN_INTERFAZ_BOTONES_Y, fill=paint.nuevos_colores.get(paint.color))
+        gamelib.draw_rectangle(INICIO_INTERFAZ_BOTONES_X, (len(paint.lienzo[len(paint.lienzo)-1])*10), FIN_INTERFAZ_BOTONES_X ,FIN_INTERFAZ_BOTONES_Y, fill=paint.nuevos_colores.get(paint.color))
     for i in range(len(paint.lienzo)):
         for j in range(len(paint.lienzo[i])):
             if paint.lienzo[i][j] in paint.nuevos_colores:
