@@ -1,5 +1,9 @@
 import gamelib
 import png
+import copy
+from pila import Pila
+from cola import Cola
+
 
 ### COLORES
 COLORES_BASICOS = {
@@ -21,7 +25,7 @@ COLORES_BOTON_AC = ["#9400D3", "#4B0082", "#0000FF", "#00FF00", "#FFFF00", "#FF7
 
 ### VENTANA
 TAMANIO_VENTANA_X = 200
-TAMANIO_VENTANA_Y = 250
+TAMANIO_VENTANA_Y = 280
 
 ### LIENZO
 TAMANIO_CELDAS = 10
@@ -53,6 +57,10 @@ ESPACIO_ENTRE_BOTONES_Y = 5
 ESPACIO_ENTRE_BOTON_AC_X = 10
 INICIO_GPPM_X = INICIO_BOTONES_X + ANCHO_BOTON_AC + ESPACIO_ENTRE_BOTON_AC_X + ESPACIO_ENTRE_BOTONES_X
 INICIO_CPPM_X = INICIO_BOTONES_X + ANCHO_BOTON_AC + ESPACIO_ENTRE_BOTON_AC_X + ESPACIO_ENTRE_BOTONES_X + ANCHO_BOTONES
+BDX = 60
+BRX = 120
+BRDY = 250
+TAMANIO_BDR = 20
 
 ### TEXTO
 POS_X_TEXTO = 26
@@ -67,6 +75,8 @@ class Paint:
         self.nuevos_colores = COLORES_BASICOS.copy()
         self.color = (0,0,0)
         self.lienzo = []
+        self.mov_ant = Pila()
+        self.mov_pos = Pila()
 
     def paint_nuevo(self):
         '''inicializa el estado del programa con una imagen vacía de ancho x alto pixels'''
@@ -78,9 +88,13 @@ class Paint:
     def actualizar_paint(self, x, y):
         
         try:
+            lienzo = copy.deepcopy(self.lienzo)
+            self.mov_ant.apilar(lienzo)
             pos_x = x // 10
             pos_y = y // 10
             self.lienzo[pos_y][pos_x] = self.color
+            while not self.mov_pos.esta_vacia():
+                self.mov_pos.desapilar()
         except IndexError:
             gamelib.say("No se puede pintar fuera del lienzo!")
 
@@ -89,6 +103,19 @@ class Paint:
             pos_x = (x - 10) // 15
             paleta = list(self.nuevos_colores.keys())
             self.color = paleta[pos_x]
+
+
+    def deshacer(self):
+        if not self.mov_ant.esta_vacia():
+            mov = self.mov_ant.desapilar()
+            self.mov_pos.apilar(mov)
+            self.lienzo = mov
+
+    def rehacer(self):
+        if not self.mov_pos.esta_vacia():
+            mov = self.mov_pos.desapilar()
+            self.mov_ant.apilar(mov)
+            self.lienzo = mov
 
         
 
@@ -218,14 +245,16 @@ def mostrar_botones():
         gamelib.draw_rectangle(pos_x + ESPACIO_ENTRE_BOTONES_X, INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y, pos_x + ANCHO_BOTONES, FIN_BOTONES_Y, fill="#FFFFFF")
         gamelib.draw_text(NOMBRES_BOTONES[j], pos_x + POS_X_TEXTO , FIN_BOTONES_Y-INICIO_BOTONES_Y + POS_Y_TEXTO , size=10, fill="#000000")
         pos_x += ANCHO_BOTONES
-    
+    gamelib.draw_image("bd.ppm", BDX, BRDY)
+    gamelib.draw_image("br.ppm", BRX, BRDY)
 
 def main():
     gamelib.title("AlgoPaint")
     gamelib.resize(TAMANIO_VENTANA_X , TAMANIO_VENTANA_Y)
     paint = Paint()
     paint.paint_nuevo()
-    print(paint.lienzo)
+    mov_ant = Pila()
+    mov_pos = Cola()
     while gamelib.is_alive():
         gamelib.draw_begin()
         paint_mostrar(paint)
@@ -251,5 +280,9 @@ def main():
                 paint.guardar_ppm()
             if INICIO_CPPM_X < x < INICIO_CPPM_X + ANCHO_BOTONES - ESPACIO_ENTRE_BOTONES_X and INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y < y < FIN_BOTONES_Y:    
                 paint.cargar_ppm()
+            if BDX < x < BDX + TAMANIO_BDR and BRDY < y < BRDY + TAMANIO_BDR: 
+                paint.deshacer()
+            if BRX < x < BRX + TAMANIO_BDR and BRDY < y < BRDY + TAMANIO_BDR:    
+                paint.rehacer()
 
 gamelib.init(main)
