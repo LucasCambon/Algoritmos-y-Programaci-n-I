@@ -93,7 +93,7 @@ class Paint:
             pos_x = x // 10
             pos_y = y // 10
             self.lienzo[pos_y][pos_x] = self.color
-            while not self.mov_pos.esta_vacia():
+            while not self.mov_pos.esta_vacia(): ## Al realizar un movimiento/cambio quitamos los elementos que se utilizan en la función rehacer y de esa forma replicamos el funcionamiento de las funciones tal cual el paint original
                 self.mov_pos.desapilar()
         except IndexError:
             gamelib.say("No se puede pintar fuera del lienzo!")
@@ -105,17 +105,23 @@ class Paint:
             self.color = paleta[pos_x]
 
 
+    def balde_de_pintura(self):
+        pass
+
     def deshacer(self):
         if not self.mov_ant.esta_vacia():
             mov = self.mov_ant.desapilar()
-            self.mov_pos.apilar(mov)
+            lienzo = copy.deepcopy(self.lienzo)
+            self.mov_pos.apilar(lienzo)
             self.lienzo = mov
 
     def rehacer(self):
         if not self.mov_pos.esta_vacia():
             mov = self.mov_pos.desapilar()
-            self.mov_ant.apilar(mov)
+            lienzo = copy.deepcopy(self.lienzo)
+            self.mov_ant.apilar(lienzo)
             self.lienzo = mov
+
 
         
 
@@ -265,7 +271,6 @@ def main():
         ev = gamelib.wait()
         if not ev:
             break
-        
         if ev.type == gamelib.EventType.ButtonPress and ev.mouse_button == 1:
             x,y = ev.x, ev.y
             if INICIO_BOTONES_X < x < FIN_BOTONES_X and INICIO_BOTONES_Y < y < FIN_BOTONES_Y - (ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y):
@@ -284,5 +289,7 @@ def main():
                 paint.deshacer()
             if BRX < x < BRX + TAMANIO_BDR and BRDY < y < BRDY + TAMANIO_BDR:    
                 paint.rehacer()
+        if ev.type == gamelib.EventType.ButtonPress and ev.mouse_button == 2:
+            print("hola")
 
 gamelib.init(main)
