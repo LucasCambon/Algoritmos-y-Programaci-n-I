@@ -40,7 +40,7 @@ FIN_LIENZO_Y = 200
 INICIO_INTERFAZ_BOTONES_X = 0
 FIN_INTERFAZ_BOTONES_X = 200
 INICIO_INTERFAZ_BOTONES_Y = 200
-FIN_INTERFAZ_BOTONES_Y = 250
+FIN_INTERFAZ_BOTONES_Y = 280
 
 ### BOTONES
 NOMBRES_BOTONES = ["G.PPM", "C.PPM", "G.PNG"]
@@ -105,8 +105,29 @@ class Paint:
             self.color = paleta[pos_x]
 
 
-    def balde_de_pintura(self):
-        pass
+    def balde_de_pintura(self, x, y):
+        
+        self.lienzo[y][x] = self.color
+        if x+1 < len(self.lienzo) and self.mov_ant.ver_tope()[y][x] == self.lienzo[y][x+1]:
+            self.balde_de_pintura(x+1, y)
+        if self.mov_ant.ver_tope()[y][x] == self.lienzo[y][x-1] and x-1 >= 0:
+            self.balde_de_pintura(x-1, y)
+        if y+1 < len(self.lienzo) and self.mov_ant.ver_tope()[y][x] == self.lienzo[y+1][x]:
+            self.balde_de_pintura(x, y+1)
+        if self.mov_ant.ver_tope()[y][x] == self.lienzo[y-1][x] and y-1 >= 0:
+            self.balde_de_pintura(x, y-1)
+        
+        else:
+            return
+        
+
+
+    def _balde_de_pintura(self, x, y):
+        lienzo = copy.deepcopy(self.lienzo)
+        self.mov_ant.apilar(lienzo)
+        pos_x = x // 10
+        pos_y = y // 10
+        self.balde_de_pintura(pos_x,pos_y)
 
     def deshacer(self):
         if not self.mov_ant.esta_vacia():
@@ -259,8 +280,6 @@ def main():
     gamelib.resize(TAMANIO_VENTANA_X , TAMANIO_VENTANA_Y)
     paint = Paint()
     paint.paint_nuevo()
-    mov_ant = Pila()
-    mov_pos = Cola()
     while gamelib.is_alive():
         gamelib.draw_begin()
         paint_mostrar(paint)
@@ -289,7 +308,9 @@ def main():
                 paint.deshacer()
             if BRX < x < BRX + TAMANIO_BDR and BRDY < y < BRDY + TAMANIO_BDR:    
                 paint.rehacer()
-        if ev.type == gamelib.EventType.ButtonPress and ev.mouse_button == 2:
-            print("hola")
+        if ev.type == gamelib.EventType.ButtonPress and ev.mouse_button == 3: ## La función del balde de pintura se activa con el click derecho
+            x,y = ev.x, ev.y
+            if INICIO_LIENZO_X < x < FIN_LIENZO_X and INICIO_LIENZO_Y < y < FIN_LIENZO_Y:
+                paint._balde_de_pintura(x, y)
 
 gamelib.init(main)
