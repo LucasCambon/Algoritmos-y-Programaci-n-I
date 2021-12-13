@@ -72,13 +72,13 @@ ENCABEZADO_PPM = ["P3", (PIXELES_ANCHO, PIXELES_ALTO), "255"]
 class Paint:
 
     def __init__(self):
-        self.nuevos_colores = COLORES_BASICOS.copy()
+        self.nuevos_colores = copy.deepcopy(COLORES_BASICOS)
         self.color = (0,0,0)
         self.lienzo = []
         self.mov_ant = Pila()
         self.mov_pos = Pila()
 
-    def paint_nuevo(self):
+    def _inicializar_paint(self):
         '''inicializa el estado del programa con una imagen vacía de ancho x alto pixels'''
         for i in range(PIXELES_ANCHO):
             self.lienzo.append([])
@@ -93,7 +93,7 @@ class Paint:
             pos_x = x // 10
             pos_y = y // 10
             self.lienzo[pos_y][pos_x] = self.color
-            while not self.mov_pos.esta_vacia(): ## Al realizar un movimiento/cambio quitamos los elementos que se utilizan en la función rehacer y de esa forma replicamos el funcionamiento de las funciones tal cual el paint original
+            while not self.mov_pos.esta_vacia(): ## Al realizar un movimiento/cambio vaciamos la pila de movimientos posteriores que se utiliza para la función rehacer y de esa forma replicamos el funcionamiento de las funciones tal cual el paint original
                 self.mov_pos.desapilar()
         except IndexError:
             gamelib.say("No se puede pintar fuera del lienzo!")
@@ -156,6 +156,7 @@ class Paint:
             return 
         color = (int(hex_color[1:3], 16),int(hex_color[3:5], 16),int(hex_color[5:7], 16))
         self.nuevos_colores[color] = hex_color
+        self.color = color
 
     def guardar_png(self):
         imagen = []
@@ -272,14 +273,14 @@ def mostrar_botones():
         gamelib.draw_rectangle(pos_x + ESPACIO_ENTRE_BOTONES_X, INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y, pos_x + ANCHO_BOTONES, FIN_BOTONES_Y, fill="#FFFFFF")
         gamelib.draw_text(NOMBRES_BOTONES[j], pos_x + POS_X_TEXTO , FIN_BOTONES_Y-INICIO_BOTONES_Y + POS_Y_TEXTO , size=10, fill="#000000")
         pos_x += ANCHO_BOTONES
-    gamelib.draw_image("bd.ppm", BDX, BRDY)
-    gamelib.draw_image("br.ppm", BRX, BRDY)
+    gamelib.draw_image("bd.gif", BDX, BRDY)
+    gamelib.draw_image("br.gif", BRX, BRDY)
 
 def main():
     gamelib.title("AlgoPaint")
     gamelib.resize(TAMANIO_VENTANA_X , TAMANIO_VENTANA_Y)
     paint = Paint()
-    paint.paint_nuevo()
+    paint._inicializar_paint()
     while gamelib.is_alive():
         gamelib.draw_begin()
         paint_mostrar(paint)
