@@ -40,7 +40,7 @@ FIN_LIENZO_Y = 200
 INICIO_INTERFAZ_BOTONES_X = 0
 FIN_INTERFAZ_BOTONES_X = 200
 INICIO_INTERFAZ_BOTONES_Y = 200
-FIN_INTERFAZ_BOTONES_Y = 280
+FIN_INTERFAZ_BOTONES_Y = 290
 
 ### BOTONES
 NOMBRES_BOTONES = ["G.PPM", "C.PPM", "G.PNG"]
@@ -57,8 +57,6 @@ ESPACIO_ENTRE_BOTONES_Y = 5
 ESPACIO_ENTRE_BOTON_AC_X = 10
 INICIO_GPPM_X = INICIO_BOTONES_X + ANCHO_BOTON_AC + ESPACIO_ENTRE_BOTON_AC_X + ESPACIO_ENTRE_BOTONES_X
 INICIO_CPPM_X = INICIO_BOTONES_X + ANCHO_BOTON_AC + ESPACIO_ENTRE_BOTON_AC_X + ESPACIO_ENTRE_BOTONES_X + ANCHO_BOTONES
-BDX = 60
-BRX = 120
 BRDY = 250
 TAMANIO_BDR = 20
 
@@ -68,6 +66,10 @@ POS_Y_TEXTO = 198
 
 ### PPM
 ENCABEZADO_PPM = ["P3", (PIXELES_ANCHO, PIXELES_ALTO), "255"]
+
+## INSTRUCCIONES CLICKS
+POS_X_INSTRUCCIONES = 150
+POS_Y_INSTRUCCIONES = 260
 
 class Paint:
 
@@ -90,8 +92,8 @@ class Paint:
         try:
             lienzo = copy.deepcopy(self.lienzo)
             self.mov_ant.apilar(lienzo)
-            pos_x = x // 10
-            pos_y = y // 10
+            pos_x = x // TAMANIO_CELDAS
+            pos_y = y // TAMANIO_CELDAS
             self.lienzo[pos_y][pos_x] = self.color
             while not self.mov_pos.esta_vacia(): ## Al realizar un movimiento/cambio vaciamos la pila de movimientos posteriores que se utiliza para la función rehacer y de esa forma replicamos el funcionamiento de las funciones tal cual el paint original
                 self.mov_pos.desapilar()
@@ -125,8 +127,8 @@ class Paint:
     def _balde_de_pintura(self, x, y):
         lienzo = copy.deepcopy(self.lienzo)
         self.mov_ant.apilar(lienzo)
-        pos_x = x // 10
-        pos_y = y // 10
+        pos_x = x // TAMANIO_CELDAS
+        pos_y = y // TAMANIO_CELDAS
         self.balde_de_pintura(pos_x,pos_y)
 
     def deshacer(self):
@@ -273,8 +275,14 @@ def mostrar_botones():
         gamelib.draw_rectangle(pos_x + ESPACIO_ENTRE_BOTONES_X, INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y, pos_x + ANCHO_BOTONES, FIN_BOTONES_Y, fill="#FFFFFF")
         gamelib.draw_text(NOMBRES_BOTONES[j], pos_x + POS_X_TEXTO , FIN_BOTONES_Y-INICIO_BOTONES_Y + POS_Y_TEXTO , size=10, fill="#000000")
         pos_x += ANCHO_BOTONES
-    gamelib.draw_image("bd.gif", BDX, BRDY)
-    gamelib.draw_image("br.gif", BRX, BRDY)
+    gamelib.draw_image("bd.gif", INICIO_BOTONES_X, BRDY)
+    gamelib.draw_image("br.gif", INICIO_BOTONES_X + ANCHO_BOTONES, BRDY)
+    gamelib.draw_rectangle(INICIO_BOTONES_X + (ANCHO_BOTONES * 2), BRDY, FIN_BOTONES_X, BRDY + TAMANIO_BDR, fill="white")
+    gamelib.draw_text("MANUAL", POS_X_INSTRUCCIONES, POS_Y_INSTRUCCIONES , size=12, fill="black")
+
+def mostrar_manual():
+    gamelib.say("1) Utilice click izquierdo para pintar un pixel o click derecho para usar el balde de pintura. 2) Puede seleccionar el color de la paleta o bien ingrese un color en formato HEX con el boton de arcoiris. 3) Es posible guardar o cargar su archivo en formato .PPM y también guardarlo en formato .PNG. 4) Puede rehacer o deshacer estados con los botones de flechas azules.")
+
 
 def main():
     gamelib.title("AlgoPaint")
@@ -305,10 +313,12 @@ def main():
                 paint.guardar_ppm()
             if INICIO_CPPM_X < x < INICIO_CPPM_X + ANCHO_BOTONES - ESPACIO_ENTRE_BOTONES_X and INICIO_BOTONES_Y + ALTO_BOTONES + ESPACIO_ENTRE_BOTONES_Y < y < FIN_BOTONES_Y:    
                 paint.cargar_ppm()
-            if BDX < x < BDX + TAMANIO_BDR and BRDY < y < BRDY + TAMANIO_BDR: 
+            if INICIO_BOTONES_X < x < INICIO_BOTONES_X + TAMANIO_BDR and BRDY < y < BRDY + TAMANIO_BDR: 
                 paint.deshacer()
-            if BRX < x < BRX + TAMANIO_BDR and BRDY < y < BRDY + TAMANIO_BDR:    
+            if INICIO_BOTONES_X + ANCHO_BOTONES < x < INICIO_BOTONES_X + TAMANIO_BDR + ANCHO_BOTONES and BRDY < y < BRDY + TAMANIO_BDR:    
                 paint.rehacer()
+            if INICIO_BOTONES_X + (ANCHO_BOTONES*2) < x < FIN_BOTONES_X and BRDY < y < BRDY + TAMANIO_BDR:    
+                mostrar_manual()
         if ev.type == gamelib.EventType.ButtonPress and ev.mouse_button == 3: ## La función del balde de pintura se activa con el click derecho
             x,y = ev.x, ev.y
             if INICIO_LIENZO_X < x < FIN_LIENZO_X and INICIO_LIENZO_Y < y < FIN_LIENZO_Y:
